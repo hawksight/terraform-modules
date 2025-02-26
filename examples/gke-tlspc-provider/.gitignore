@@ -1,0 +1,4 @@
+venafi-config
+plan
+*.tfstate
+*.tfstate.backup
