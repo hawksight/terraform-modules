@@ -1,6 +1,19 @@
 # Venafi Service Account
 
-Creates a Venafi Control Plane (VCP) service account and prepare a given cluster for the installation of the Venafi Kubernetes Agent.
+**STATUS:** Deprecated in current form.
+
+> Please refer to [Jetstack/tlspc](https://registry.terraform.io/providers/jetstack/tlspc/latest) for a native solution.
+
+Creates a Venafi Control Plane (VCP) service account via some hacks and prepare a given cluster for the installation of the Venafi Kubernetes Agent.
+
+## To Do
+
+- [ ] Replace the provisioner code with [native service_account](https://registry.terraform.io/providers/jetstack/tlspc/latest/docs/resources/service_account)
+- [ ] Remove check scripts once above working.
+- [ ] Add ability to switch between key pair and workload identity federation
+
+If all the above can be done, then this module may be reinstated.
+For now, see [provider](https://registry.terraform.io/providers/jetstack/tlspc/latest).
 
 ## Requirements
 
