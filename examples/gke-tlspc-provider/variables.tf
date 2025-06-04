@@ -34,14 +34,62 @@ variable "vcp_team_name" {
 }
 
 variable "vcp_region" {
-  type    = string
-  default = "eu"
+  type        = string
+  default     = "eu"
+  description = "Sets the product region. Used to determine URLS"
+}
+
+variable "vcp_endpoints" {
+  default = {
+    "us" : {
+      "private_registry" : "private-registry.venafi.cloud",
+      "public_registry" : "registry.venafi.cloud",
+      "api" : "api.venafi.cloud"
+    },
+    "eu" : {
+      "private_registry" : "private-registry.venafi.eu",
+      "public_registry" : "registry.venafi.cloud",
+      "api" : "api.venafi.eu"
+    },
+    "uk" : {
+      "private_registry" : "private-registry.venafi.uk",
+      "public_registry" : "registry.venafi.cloud",
+      "api" : "api.uk.venafi.cloud"
+    },
+    "ca" : {
+      "private_registry" : "private-registry.venafi.ca",
+      "public_registry" : "registry.venafi.cloud",
+      "api" : "api.ca.venafi.cloud"
+    },
+    "si" : {
+      "private_registry" : "private-registry.venafi.si",
+      "public_registry" : "registry.venafi.cloud",
+      "api" : "api.si.venafi.cloud"
+    },
+    "au" : {
+      "private_registry" : "private-registry.venafi.au",
+      "public_registry" : "registry.venafi.cloud",
+      "api" : "api.au.venafi.cloud"
+    }
+  }
 }
 
 variable "vcp_api_endpoint" {
   type        = string
-  default     = "https://api.venafi.cloud"
-  description = "Venafi API Endpoint - different between US and EU regions"
+  default     = ""
+  description = "Override for TLS Protect Cloud API Endpoint. If not set it is inferred by vcp_region from vcp_endpoints."
+}
+
+variable "vcp_private_registry_url" {
+  type        = string
+  default     = ""
+  description = "Override for private registry images. If not set it is inferred by vcp_region from vcp_endpoints."
+}
+
+variable "vcp_public_registry_url" {
+  type        = string
+  default     = ""
+  description = "Override for public registry images. If not set it is inferred by vcp_region from vcp_endpoints."
 }
 
 variable "vcp_issuing_policies" {
@@ -76,6 +124,12 @@ variable "gcp_cluster_name" {
   default     = "example-autopilot-cluster"
   description = "GKE cluster name in GCP"
 }
+
+# variable "gcp_enable_autopilot" {
+#   type        = bool
+#   default     = false
+#   description = "Option to enable autopilot. Do not enable if using CyberArk Firefly as it does not run in autopilot clusters currently."
+# }
 
 # Helm specific
 # NOTE this is not a public chart at the moment.

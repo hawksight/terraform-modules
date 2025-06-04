@@ -1,0 +1,26 @@
+# firefly-values.yaml
+acceptTerms: true
+deployment:
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      add: [ "IPC_LOCK" ]
+      drop: [ "ALL" ]
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+
+  mlock: true
+  config:
+    bootstrap:
+      vaas:
+        clientID: ${CLIENT_ID}
+        url: ${API_URL}
+        credentialsSecretName: ${SECRET_NAME}
+        credentialsSecretEnabled: true
+crd:
+  approver:
+    subject:
+      name: cert-manager
+      namespace: ${NAMESPACE}

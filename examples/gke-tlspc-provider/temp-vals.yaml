@@ -1,0 +1,24 @@
+# firefly-values.yaml
+acceptTerms: true
+deployment:
+  config:
+    bootstrap:
+      vaas:
+        clientID: 7ad31f0c-407a-11f0-b7ed-ae1083f178ab
+        url: https://api.venafi.eu
+  mlock: false
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      add: [ ]
+      drop: [ "ALL" ]
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+
+crd:
+  approver:
+    subject:
+      name: cert-manager
+      namespace: venafi

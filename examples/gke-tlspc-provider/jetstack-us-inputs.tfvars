@@ -1,7 +1,7 @@
 # GCP Specific
-gcp_project = "jetstack-peter-fiddes"
-gcp_region = "europe-west1"
-gcp_zone = "europe-west1-c"
+gcp_project      = "jetstack-peter-fiddes"
+gcp_region       = "europe-west1"
+gcp_zone         = "europe-west1-c"
 gcp_cluster_name = "giraffe-takeover"
 
 # VCP Specific

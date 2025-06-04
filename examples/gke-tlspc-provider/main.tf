@@ -10,11 +10,11 @@ data "google_client_config" "default" {}
 # ------------------------------------------------------------------------- #
 # Locals to toggle some reusable settings
 locals {
-  registry_url        = lower(var.vcp_region) == "eu" ? "private-registry.venafi.eu" : "private-registry.venafi.cloud"
-  public_registry_url = lower(var.vcp_region) == "eu" ? "registry.venafi.eu" : "registry.venafi.cloud"
-  api_url             = lower(var.vcp_region) == "eu" ? "https://api.venafi.eu" : "https://api.venafi.cloud"
-  issuer_uri          = "https://container.googleapis.com/v1/projects/${var.gcp_project}/locations/${var.gcp_region}/clusters/${var.gcp_cluster_name}"
-  jwks_uri            = "https://container.googleapis.com/v1/projects/${var.gcp_project}/locations/${var.gcp_region}/clusters/${var.gcp_cluster_name}/jwks"
+  private_registry_url = var.vcp_private_registry_url != "" ? var.vcp_private_registry_url : (var.vcp_endpoints[lower(var.vcp_region)]["private_registry"])
+  public_registry_url  = var.vcp_public_registry_url != "" ? var.vcp_public_registry_url : (var.vcp_endpoints[lower(var.vcp_region)]["public_registry"])
+  api_url              = var.vcp_api_endpoint != "" ? "https://${var.vcp_api_endpoint}" : ("https://${var.vcp_endpoints[lower(var.vcp_region)]["api"]}")
+  issuer_uri           = "https://container.googleapis.com/v1/projects/${var.gcp_project}/locations/${var.gcp_region}/clusters/${var.gcp_cluster_name}"
+  jwks_uri             = "https://container.googleapis.com/v1/projects/${var.gcp_project}/locations/${var.gcp_region}/clusters/${var.gcp_cluster_name}/jwks"
 }
 
 # We must lookup the owner in order to use the id attribute in team creation.
@@ -34,9 +34,12 @@ resource "tlspc_team" "team" {
 # The following three resources create an imagePullSecret in cluster in order
 # to pull the Venafi Images from the relevant private registry.
 resource "tlspc_registry_account" "oci" {
-  name                = "${var.vcp_cluster_name}-oci"
-  owner               = resource.tlspc_team.team.id
-  scopes              = ["oci-registry-cm", "oci-registry-cm-vei", "oci-registry-cm-ape"]
+  name  = "${var.vcp_cluster_name}-oci"
+  owner = resource.tlspc_team.team.id
+  ## This assumes you have all these scopes accessible in your TLS Protect Cloud account.
+  scopes = ["oci-registry-cm", "oci-registry-cm-vei", "oci-registry-cm-ape", "oci-registry-cm-os"]
+  ## If not, you can use the following scopes instead:
+  # scopes              = ["oci-registry-cm"]
   credential_lifetime = 365
 }
 
@@ -54,9 +57,11 @@ resource "kubernetes_secret" "pull-credentials" {
     namespace = var.vcp_namespace
   }
   data = {
-    ".dockerconfigjson" = jsonencode({ "auths" = { "${local.registry_url}" = { "auth" = base64encode("${resource.tlspc_registry_account.oci.oci_account_name}:${resource.tlspc_registry_account.oci.oci_registry_token}") } } })
+    ".dockerconfigjson" = jsonencode({ "auths" = { "${local.private_registry_url}" = { "auth" = base64encode("${resource.tlspc_registry_account.oci.oci_account_name}:${resource.tlspc_registry_account.oci.oci_registry_token}") } } })
   }
   type = "kubernetes.io/dockerconfigjson"
+
+  depends_on = [tlspc_registry_account.oci]
 }
 
 # Next create an application so all certificates from this cluster are
@@ -170,7 +175,7 @@ resource "helm_release" "tlspk-config" {
     value = true
   }
   set_list {
-    name  = "test.certificate.dnsNames"
+    name = "test.certificate.dnsNames"
     value = [
       "tlspc-cluster-issuer.example.test"
     ]
@@ -178,8 +183,155 @@ resource "helm_release" "tlspk-config" {
   depends_on = [
     helm_release.venafi-enhanced-issuer,
     helm_release.approver-policy-enterprise,
-    helm_release.venafi-agent
+    helm_release.venafi-agent,
+    kubernetes_secret.pull-credentials
     # tlspc_service_account.agent,
     # tlspc_service_account.issuer
   ]
+}
+
+
+## Firefly
+// TODO - already have team, do I need another?
+resource "tlspc_team" "firefly_team" {
+  name   = "${var.vcp_team_name}-firefly"
+  role   = "PLATFORM_ADMIN"
+  owners = [data.tlspc_user.team_owner.id]
+}
+
+// TODO - remove this when Firefly supports JWTs
+resource "tls_private_key" "rsa-key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+// Required because I am using JWT on the cluster service account.
+resource "tlspc_service_account" "firefly" {
+  name                = "${var.vcp_cluster_name}-firefly-issuance"
+  owner               = resource.tlspc_team.firefly_team.id
+  scopes              = ["distributed-issuance"]
+  credential_lifetime = 365
+  public_key          = trimspace(resource.tls_private_key.rsa-key.public_key_pem)
+}
+
+# Put the Firefly issuance service account credential in cluster for firefly
+resource "kubernetes_secret" "firefly-credentials" {
+  metadata {
+    name      = "${var.vcp_team_name}-firefly-issuance"
+    namespace = var.vcp_namespace
+  }
+  data = {
+    "svc-acct.key" = tls_private_key.rsa-key.private_key_pem
+  }
+  type = "kubernetes.io/generic"
+
+  depends_on = [tlspc_service_account.firefly]
+}
+
+resource "tlspc_firefly_policy" "ff_policy" {
+  name                = "${var.vcp_team_name} Firefly Policy"
+  extended_key_usages = ["ANY"]
+  key_usages          = ["digitalSignature", "keyEncipherment"]
+  validity_period     = "P30D"
+  key_algorithm = {
+    allowed_values = ["RSA_2048"]
+    default_value  = "RSA_2048"
+  }
+  sans = {
+    dns_names = {
+      type            = "OPTIONAL"
+      min_occurrences = 0
+      max_occurrences = 1000
+      allowed_values  = []
+      default_values  = []
+    }
+    ip_addresses = {
+      type            = "OPTIONAL"
+      min_occurrences = 0
+      max_occurrences = 1000
+      allowed_values  = []
+      default_values  = []
+    }
+    rfc822_names = {
+      type            = "OPTIONAL"
+      min_occurrences = 0
+      max_occurrences = 1000
+      allowed_values  = []
+      default_values  = []
+    }
+    uris = {
+      type            = "OPTIONAL"
+      min_occurrences = 0
+      max_occurrences = 1000
+      allowed_values  = []
+      default_values  = []
+    }
+  }
+  subject = {
+    country = {
+      type            = "OPTIONAL"
+      min_occurrences = 0
+      max_occurrences = 1000
+      allowed_values  = []
+      default_values  = []
+    }
+    common_name = {
+      type            = "OPTIONAL"
+      min_occurrences = 0
+      max_occurrences = 1000
+      allowed_values  = []
+      default_values  = []
+    }
+    locality = {
+      type            = "OPTIONAL"
+      min_occurrences = 0
+      max_occurrences = 1000
+      allowed_values  = []
+      default_values  = []
+    }
+    organization = {
+      type            = "OPTIONAL"
+      min_occurrences = 0
+      max_occurrences = 1000
+      allowed_values  = []
+      default_values  = []
+    }
+    organizational_unit = {
+      type            = "OPTIONAL"
+      min_occurrences = 0
+      max_occurrences = 1000
+      allowed_values  = []
+      default_values  = []
+    }
+    state_or_province = {
+      type            = "OPTIONAL"
+      min_occurrences = 0
+      max_occurrences = 1000
+      allowed_values  = []
+      default_values  = []
+    }
+  }
+}
+
+data "tlspc_ca_product" "built_in_ca" {
+  type           = "BUILTIN"
+  ca_name        = "Built-In CA"
+  product_option = "Default Product"
+}
+
+resource "tlspc_firefly_subca" "subca" {
+  name                 = "${var.vcp_team_name} Firefly Sub CA"
+  ca_type              = data.tlspc_ca_product.built_in_ca.type
+  ca_account_id        = data.tlspc_ca_product.built_in_ca.account_id
+  ca_product_option_id = data.tlspc_ca_product.built_in_ca.id
+  common_name          = "foobar"
+  key_algorithm        = "RSA_2048"
+  validity_period      = "P30D"
+}
+
+resource "tlspc_firefly_config" "ff_config" {
+  name             = "Firefly Config"
+  subca_provider   = resource.tlspc_firefly_subca.subca.id
+  service_accounts = [resource.tlspc_service_account.firefly.id]
+  policies         = [resource.tlspc_firefly_policy.ff_policy.id]
 }
