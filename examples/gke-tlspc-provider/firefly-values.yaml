@@ -22,5 +22,5 @@ deployment:
 crd:
   approver:
     subject:
-      name: cert-manager
+      name: cert-manager-approver-policy
       namespace: ${NAMESPACE}

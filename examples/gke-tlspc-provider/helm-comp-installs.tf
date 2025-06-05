@@ -28,6 +28,7 @@ resource "helm_release" "approver-policy-enterprise" {
       "clusterissuers.cert-manager.io/*",
       "venaficlusterissuers.jetstack.io/*",
       "venafiissuers.jetstack.io/*",
+      "firefly.venafi.com/*",
     ]
   }
 

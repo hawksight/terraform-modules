@@ -1,0 +1,53 @@
+---
+apiVersion: policy.cert-manager.io/v1alpha1
+kind: CertificateRequestPolicy
+metadata:
+  name: tiger-response-firefly
+spec:
+  allowed:
+    commonName:
+      value: "*"
+    dnsNames:
+      values:
+      - "*"
+    usages:
+    - signing
+    - digital signature
+    - server auth
+  # plugins:
+  #   venafi:
+  #     values:
+  #       venafiConnectionName: tlspc-cluster-issuer
+  #       zone: tiger-response-tlspk\tlspk
+  selector:
+    issuerRef:
+      name: firefly
+      kind: Issuer
+      group: firefly.venafi.com
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cert-manager-policy:tiger-response-firefly
+rules:
+- apiGroups:
+  - policy.cert-manager.io
+  resourceNames:
+  - tiger-response-firefly
+  resources:
+  - certificaterequestpolicies
+  verbs:
+  - use
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cert-manager-policy:tiger-response-firefly
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cert-manager-policy:tiger-response-firefly
+subjects:
+- kind: ServiceAccount
+  name: cert-manager
+  namespace: venafi
