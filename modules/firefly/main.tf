@@ -1,3 +1,7 @@
+# locals {
+#   name = value
+# }
+
 // Lookup the team owner to get ID for later
 data "tlspc_user" "firefly_team_owner" {
   email = var.vcp_team_owner_email
@@ -23,7 +27,7 @@ resource "tlspc_service_account" "firefly" {
   owner               = resource.tlspc_team.firefly_team.id
   scopes              = ["distributed-issuance"]
   credential_lifetime = 365
-  public_key          = var.vcp_sa_public_key == "" ? trimspace(resource.tls_private_key.rsa-key.public_key_pem) : trimspace(var.vcp_sa_public_key)
+  public_key          = var.vcp_sa_public_key == "" ? trimspace(resource.tls_private_key.rsa-key[0].public_key_pem) : trimspace(var.vcp_sa_public_key)
 }
 
 # Put the Firefly issuance service account credential in cluster for firefly
@@ -33,7 +37,7 @@ resource "kubernetes_secret" "firefly-credentials" {
     namespace = var.vcp_namespace
   }
   data = {
-    "svc-acct.key" = tls_private_key.rsa-key.private_key_pem
+    "svc-acct.key" = var.vcp_sa_private_key == "" ? trimspace(resource.tls_private_key.rsa-key[0].private_key_pem) : trimspace(var.vcp_sa_private_key)
   }
   type = "kubernetes.io/generic"
 
@@ -128,7 +132,7 @@ resource "tlspc_firefly_policy" "policy" {
 data "tlspc_ca_product" "built_in_ca" {
   type           = var.vcp_certificate_authority["type"]
   ca_name        = var.vcp_certificate_authority["ca_name"]
-  product_option = var.vcp_certificate_authority["production_option"]
+  product_option = var.vcp_certificate_authority["product_option"]
 }
 
 resource "tlspc_firefly_subca" "subca" {

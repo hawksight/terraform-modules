@@ -2,15 +2,15 @@ terraform {
   required_providers {
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "^  2.32.0"
+      version = "2.32.0"
     }
     helm = {
       source  = "hashicorp/helm"
-      version = "^2.14.0"
+      version = "2.14.0"
     }
     tlspc = {
       source  = "jetstack/tlspc"
-      version = "^0.4.0"
+      version = "0.4.0"
     }
   }
 }

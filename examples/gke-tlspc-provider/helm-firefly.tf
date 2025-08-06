@@ -6,7 +6,7 @@ resource "helm_release" "firefly" {
   version    = "v1.7.0"
 
   values = [templatefile("firefly-values.yaml", {
-    CLIENT_ID   = tlspc_service_account.firefly.id,
+    CLIENT_ID   = module.firefly.firefly_id,
     API_URL     = local.api_url,
     NAMESPACE   = var.vcp_namespace,
     SECRET_NAME = "${var.vcp_team_name}-firefly-issuance"
@@ -14,16 +14,12 @@ resource "helm_release" "firefly" {
 
   depends_on = [
     kubernetes_secret.pull-credentials,
-    tlspc_firefly_config.ff_config,
-    tlspc_firefly_subca.subca,
-    data.tlspc_ca_product.built_in_ca,
-    tlspc_firefly_policy.ff_policy,
-    tlspc_service_account.firefly,
     helm_release.approver-policy-enterprise,
     helm_release.cert-manager,
-    helm_release.venafi-connection
+    helm_release.venafi-connection,
+    module.firefly
   ]
 
   # upgrade_install = true
-  timeout         = 100
+  timeout = 100
 }

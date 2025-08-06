@@ -3,7 +3,7 @@ resource "helm_release" "venafi-connection" {
   namespace  = var.vcp_namespace
   repository = "oci://registry.venafi.cloud/charts/"
   chart      = "venafi-connection"
-  version    = "v0.2.0"
+  version    = "v0.4.0"
   depends_on = [kubernetes_secret.pull-credentials]
 
   timeout = 200
@@ -89,7 +89,7 @@ resource "helm_release" "cert-manager" {
   namespace  = var.vcp_namespace
   repository = "oci://registry.venafi.cloud/charts/"
   chart      = "cert-manager"
-  version    = "v1.17.1"
+  version    = "v1.18.0-beta.0"
 
   # venctl values
   set {
@@ -168,7 +168,7 @@ resource "helm_release" "venafi-agent" {
   namespace  = var.vcp_namespace
   repository = "oci://registry.venafi.cloud/charts/"
   chart      = "venafi-kubernetes-agent"
-  version    = "1.4.0"
+  version    = "v1.5.0"
   set {
     name  = "config.clusterName"
     value = var.vcp_cluster_name

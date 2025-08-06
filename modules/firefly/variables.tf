@@ -33,6 +33,13 @@ variable "vcp_namespace" {
   description = "Set the installation namespace of the firefly in cluster resource dependencies"
 }
 
+variable "vcp_sa_private_key" {
+  type        = string
+  sensitive   = true
+  default     = ""
+  description = "Optionally provide a pubprivate key for the service account, else one is generated on your behalf. See here for more details: https://docs.venafi.cloud/firefly/service-accounts/"
+}
+
 variable "vcp_sa_public_key" {
   type        = string
   default     = ""
