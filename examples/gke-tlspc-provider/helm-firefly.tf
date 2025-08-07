@@ -13,11 +13,11 @@ resource "helm_release" "firefly" {
   })]
 
   depends_on = [
-    kubernetes_secret.pull-credentials,
+    module.tlspk,
+    module.firefly,
     helm_release.approver-policy-enterprise,
     helm_release.cert-manager,
     helm_release.venafi-connection,
-    module.firefly
   ]
 
   # upgrade_install = true

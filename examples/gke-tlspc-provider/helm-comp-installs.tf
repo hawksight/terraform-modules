@@ -1,10 +1,10 @@
 resource "helm_release" "venafi-connection" {
   name       = "venafi-connection"
   namespace  = var.vcp_namespace
-  repository = "oci://registry.venafi.cloud/charts/"
+  repository = local.oci_chart_url
   chart      = "venafi-connection"
   version    = "v0.4.0"
-  depends_on = [kubernetes_secret.pull-credentials]
+  depends_on = [module.tlspk]
 
   timeout = 200
 }
@@ -12,7 +12,7 @@ resource "helm_release" "venafi-connection" {
 resource "helm_release" "approver-policy-enterprise" {
   name       = "approver-policy-enterprise"
   namespace  = var.vcp_namespace
-  repository = "oci://registry.venafi.cloud/charts/"
+  repository = local.oci_chart_url
   chart      = "approver-policy-enterprise"
   version    = "v0.20.0"
 
@@ -87,7 +87,7 @@ resource "helm_release" "approver-policy-enterprise" {
 resource "helm_release" "cert-manager" {
   name       = "cert-manager"
   namespace  = var.vcp_namespace
-  repository = "oci://registry.venafi.cloud/charts/"
+  repository = local.oci_chart_url
   chart      = "cert-manager"
   version    = "v1.18.0-beta.0"
 
@@ -137,7 +137,7 @@ resource "helm_release" "cert-manager" {
 resource "helm_release" "venafi-enhanced-issuer" {
   name       = "venafi-enhanced-issuer"
   namespace  = var.vcp_namespace
-  repository = "oci://registry.venafi.cloud/charts/"
+  repository = local.oci_chart_url
   chart      = "venafi-enhanced-issuer"
   version    = "v0.15.0"
 
@@ -166,7 +166,7 @@ resource "helm_release" "venafi-enhanced-issuer" {
 resource "helm_release" "venafi-agent" {
   name       = "venafi-kubernetes-agent"
   namespace  = var.vcp_namespace
-  repository = "oci://registry.venafi.cloud/charts/"
+  repository = local.oci_chart_url
   chart      = "venafi-kubernetes-agent"
   version    = "v1.5.0"
   set {
