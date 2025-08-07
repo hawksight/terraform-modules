@@ -23,6 +23,8 @@ resource "tls_private_key" "rsa-key" {
 
 // Required because I am using JWT on the cluster service account.
 resource "tlspc_service_account" "firefly" {
+  # TODO: change to being the cluster name rather than team - see UI for example
+  # Makes it consistent with tlspk module
   name                = "${var.vcp_team_name}-${var.vcp_firefly_name}-issuance"
   owner               = resource.tlspc_team.firefly_team.id
   scopes              = ["distributed-issuance"]

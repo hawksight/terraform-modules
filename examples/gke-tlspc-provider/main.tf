@@ -70,6 +70,8 @@ resource "helm_release" "tlspk-config" {
   # --- End Example ---- #
   set {
     name  = "issuer.zone"
+    # VCP Application \ Issuing Policy
+    # TODO: change tlspk to be a variable
     value = "${var.vcp_team_name}-tlspk\\\\tlspk"
   }
   set {
