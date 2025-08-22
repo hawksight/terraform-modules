@@ -1,7 +1,15 @@
 # ------------------------------------------------------------------------- #
 # --- 1) Create cluster environment
 # ------------------------------------------------------------------------- #
-# GKE environment in gke.tf :)
+module gke {
+  source = "../../modules/gke"
+
+  gcp_project = var.gcp_project
+  gcp_region  = var.gcp_region
+  gcp_zone    = var.gcp_zone
+  gcp_cluster_name =  var.gcp_cluster_name
+}
+
 # Lookup here to use details for authentication
 data "google_client_config" "default" {}
 

@@ -26,9 +26,9 @@ provider "google" {
 }
 
 provider "kubernetes" {
-  host                   = "https://${google_container_cluster.default.endpoint}"
+  host                   = "https://${module.gke.cluster_endpoint}"
   token                  = data.google_client_config.default.access_token
-  cluster_ca_certificate = base64decode(google_container_cluster.default.master_auth[0].cluster_ca_certificate)
+  cluster_ca_certificate = base64decode(module.gke.cluster_certificate)
 
   ignore_annotations = [
     "^autopilot\\.gke\\.io\\/.*",
@@ -38,10 +38,9 @@ provider "kubernetes" {
 
 provider "helm" {
   kubernetes {
-    host                   = "https://${google_container_cluster.default.endpoint}"
+    host                   = "https://${module.gke.cluster_endpoint}"
     token                  = data.google_client_config.default.access_token
-    cluster_ca_certificate = base64decode(google_container_cluster.default.master_auth[0].cluster_ca_certificate)
-
+    cluster_ca_certificate = base64decode(module.gke.cluster_certificate)
     # ignore_annotations = [
     #   "^autopilot\\.gke\\.io\\/.*",
     #   "^cloud\\.google\\.com\\/.*"

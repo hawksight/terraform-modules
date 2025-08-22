@@ -5,6 +5,8 @@ metadata:
   name: firefly-test
   annotations:
     firefly.venafi.com/policy-name: "tiger-response Firefly Policy"
+    # changed since I modularized the policy
+    # firefly.venafi.com/policy-name: "Firefly Policy - tiger-response/firefly"
 spec:
   commonName: jimmy.example.com
   issuerRef:
@@ -12,4 +14,3 @@ spec:
     kind: Issuer
     group: firefly.venafi.com
   secretName: firefly-test-cert
-
