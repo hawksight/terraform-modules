@@ -4,9 +4,9 @@ apiVersion: cert-manager.io/v1
 metadata:
   name: firefly-test
   annotations:
-    firefly.venafi.com/policy-name: "tiger-response Firefly Policy"
+    # firefly.venafi.com/policy-name: "tiger-response Firefly Policy"
     # changed since I modularized the policy
-    # firefly.venafi.com/policy-name: "Firefly Policy - tiger-response/firefly"
+    firefly.venafi.com/policy-name: "Firefly Policy - tiger-response/firefly"
 spec:
   commonName: jimmy.example.com
   issuerRef:
