@@ -1,3 +1,23 @@
+# CyberArk Certificate Manager Kubernetes Deployment
+
+> Formerly known TLS Protect for Kubernetes (TLSPK)
+
+**STATUS:** Alpha
+
+Creates a CyberArk Certificate Manager for Kubernetes installation and deploys dependencies to a Kuberentes cluster..
+
+## Privileges
+
+Everything in this module will work as a "Platform Owner" role, via API key.
+See more about role type [here](https://docs.cyberark.com/mis-saas/vaas/user-management/about-user-roles/).
+
+## To Do
+
+- [ ] Lookup existing team, depends on [this feature](https://github.com/jetstack/terraform-provider-tlspc/issues/87).
+- [ ] Remove local variable assignments for issuer_uri and jwks_uri and use vars directly ([main.tf](modules/tlspk/main.tf#L6))
+- [ ] Add PSP baseline annotations to the namespace creation ([main.tf](modules/tlspk/main.tf#L42))
+- [ ] Replace hardcoded "tlspc-cluster-issuer" with a variable for service account name ([main.tf](modules/tlspk/main.tf#L77))
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -5,14 +25,14 @@
 |------|---------|
 | <a name="requirement_helm"></a> [helm](#requirement\_helm) | 2.14.0 |
 | <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | 2.32.0 |
-| <a name="requirement_tlspc"></a> [tlspc](#requirement\_tlspc) | 0.4.0 |
+| <a name="requirement_tlspc"></a> [tlspc](#requirement\_tlspc) | 0.5.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | 2.32.0 |
-| <a name="provider_tlspc"></a> [tlspc](#provider\_tlspc) | 0.4.0 |
+| <a name="provider_tlspc"></a> [tlspc](#provider\_tlspc) | 0.5.0 |
 
 ## Modules
 
@@ -24,12 +44,12 @@ No modules.
 |------|------|
 | [kubernetes_namespace.tlspk](https://registry.terraform.io/providers/hashicorp/kubernetes/2.32.0/docs/resources/namespace) | resource |
 | [kubernetes_secret.pull-credentials](https://registry.terraform.io/providers/hashicorp/kubernetes/2.32.0/docs/resources/secret) | resource |
-| [tlspc_application.app](https://registry.terraform.io/providers/jetstack/tlspc/0.4.0/docs/resources/application) | resource |
-| [tlspc_registry_account.oci](https://registry.terraform.io/providers/jetstack/tlspc/0.4.0/docs/resources/registry_account) | resource |
-| [tlspc_service_account.agent](https://registry.terraform.io/providers/jetstack/tlspc/0.4.0/docs/resources/service_account) | resource |
-| [tlspc_service_account.issuer](https://registry.terraform.io/providers/jetstack/tlspc/0.4.0/docs/resources/service_account) | resource |
-| [tlspc_team.team](https://registry.terraform.io/providers/jetstack/tlspc/0.4.0/docs/resources/team) | resource |
-| [tlspc_user.team_owner](https://registry.terraform.io/providers/jetstack/tlspc/0.4.0/docs/data-sources/user) | data source |
+| [tlspc_application.app](https://registry.terraform.io/providers/jetstack/tlspc/0.5.0/docs/resources/application) | resource |
+| [tlspc_registry_account.oci](https://registry.terraform.io/providers/jetstack/tlspc/0.5.0/docs/resources/registry_account) | resource |
+| [tlspc_service_account.agent](https://registry.terraform.io/providers/jetstack/tlspc/0.5.0/docs/resources/service_account) | resource |
+| [tlspc_service_account.issuer](https://registry.terraform.io/providers/jetstack/tlspc/0.5.0/docs/resources/service_account) | resource |
+| [tlspc_team.team](https://registry.terraform.io/providers/jetstack/tlspc/0.5.0/docs/resources/team) | resource |
+| [tlspc_user.team_owner](https://registry.terraform.io/providers/jetstack/tlspc/0.5.0/docs/data-sources/user) | data source |
 
 ## Inputs
 
