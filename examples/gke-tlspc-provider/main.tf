@@ -117,10 +117,8 @@ resource "helm_release" "tlspk-config" {
     helm_release.venafi-enhanced-issuer,
     helm_release.approver-policy-enterprise,
     helm_release.venafi-agent,
-    module.tlspk
-    # kubernetes_secret.pull-credentials
-    # tlspc_service_account.agent,
-    # tlspc_service_account.issuer
+    module.tlspk,
+    module.gke
   ]
 }
 
@@ -134,4 +132,6 @@ module "firefly" {
   vcp_existing_team    = false
   vcp_team_name        = var.vcp_team_name
   vcp_team_owner_email = var.vcp_team_owner_email
+
+  depends_on = [module.tlspk, module.gke]
 }

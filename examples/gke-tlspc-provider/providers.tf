@@ -2,19 +2,19 @@ terraform {
   required_providers {
     tlspc = {
       source  = "jetstack/tlspc"
-      version = "0.4.0"
+      version = "0.5.0"
     }
     helm = {
       source  = "hashicorp/helm"
-      version = "2.14.0"
+      version = ">=2.14.0"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "2.32.0"
+      version = ">=2.32.0"
     }
     google = {
       source  = "hashicorp/google"
-      version = "6.12.0"
+      version = ">=7.19.0"
     }
   }
 }

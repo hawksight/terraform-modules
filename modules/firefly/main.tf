@@ -21,6 +21,7 @@ resource "tls_private_key" "rsa-key" {
   rsa_bits  = 4096
 }
 
+# WARNING: Probably requires admin API key to manage an issuance based service account
 // Required because I am using JWT on the cluster service account.
 resource "tlspc_service_account" "firefly" {
   # TODO: change to being the cluster name rather than team - see UI for example

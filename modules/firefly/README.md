@@ -4,6 +4,8 @@
 
 Creates a CyberArk Certificate Manager Cloud Firefly installation and deploys it to a Kubernetes cluster.
 
+> **ATTENTION**: Currently requires an "admin" level API key to manage the issuance service account for Firefly.
+
 ## To Do
 
 - [ ] Lookup existing team, depends on https://github.com/jetstack/terraform-provider-tlspc/issues/87
