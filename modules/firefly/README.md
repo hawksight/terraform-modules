@@ -1,6 +1,8 @@
-# CyberArk Certificate Manager Cloud Firefly Issuance
+# CyberArk Certificate Manager Cloud - Workload Identity
 
-**STATUS:** WIP
+> Formerly known as Firefly
+
+**STATUS:** Alpha
 
 Creates a CyberArk Certificate Manager Cloud Firefly installation and deploys it to a Kubernetes cluster.
 
@@ -8,8 +10,11 @@ Creates a CyberArk Certificate Manager Cloud Firefly installation and deploys it
 
 ## To Do
 
-- [ ] Lookup existing team, depends on https://github.com/jetstack/terraform-provider-tlspc/issues/87
-- [ ] Test
+- [ ] Lookup existing team, depends on this [feature](https://github.com/jetstack/terraform-provider-tlspc/issues/87)
+- [ ] Check if additional team creation is needed when team already exists ([main.tf](modules/firefly/main.tf#L10))
+- [ ] Remove RSA key generation when Firefly supports JWTs ([main.tf](modules/firefly/main.tf#L17))
+- [ ] Change service account name to use cluster name rather than team name for consistency with tlspk module ([main.tf](modules/firefly/main.tf#L27))
+- [ ] Add the required `CertificateRequestPolicy` resources needed in cluster for the configured issuer. Likely this will be done in an associated Helm Chart ().
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
@@ -18,7 +23,7 @@ Creates a CyberArk Certificate Manager Cloud Firefly installation and deploys it
 |------|---------|
 | <a name="requirement_helm"></a> [helm](#requirement\_helm) | 2.14.0 |
 | <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | 2.32.0 |
-| <a name="requirement_tlspc"></a> [tlspc](#requirement\_tlspc) | 0.4.0 |
+| <a name="requirement_tlspc"></a> [tlspc](#requirement\_tlspc) | 0.5.0 |
 
 ## Providers
 
@@ -26,7 +31,7 @@ Creates a CyberArk Certificate Manager Cloud Firefly installation and deploys it
 |------|---------|
 | <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | 2.32.0 |
 | <a name="provider_tls"></a> [tls](#provider\_tls) | n/a |
-| <a name="provider_tlspc"></a> [tlspc](#provider\_tlspc) | 0.4.0 |
+| <a name="provider_tlspc"></a> [tlspc](#provider\_tlspc) | 0.5.0 |
 
 ## Modules
 
@@ -38,13 +43,13 @@ No modules.
 |------|------|
 | [kubernetes_secret.firefly-credentials](https://registry.terraform.io/providers/hashicorp/kubernetes/2.32.0/docs/resources/secret) | resource |
 | [tls_private_key.rsa-key](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key) | resource |
-| [tlspc_firefly_config.config](https://registry.terraform.io/providers/jetstack/tlspc/0.4.0/docs/resources/firefly_config) | resource |
-| [tlspc_firefly_policy.policy](https://registry.terraform.io/providers/jetstack/tlspc/0.4.0/docs/resources/firefly_policy) | resource |
-| [tlspc_firefly_subca.subca](https://registry.terraform.io/providers/jetstack/tlspc/0.4.0/docs/resources/firefly_subca) | resource |
-| [tlspc_service_account.firefly](https://registry.terraform.io/providers/jetstack/tlspc/0.4.0/docs/resources/service_account) | resource |
-| [tlspc_team.firefly_team](https://registry.terraform.io/providers/jetstack/tlspc/0.4.0/docs/resources/team) | resource |
-| [tlspc_ca_product.built_in_ca](https://registry.terraform.io/providers/jetstack/tlspc/0.4.0/docs/data-sources/ca_product) | data source |
-| [tlspc_user.firefly_team_owner](https://registry.terraform.io/providers/jetstack/tlspc/0.4.0/docs/data-sources/user) | data source |
+| [tlspc_firefly_config.config](https://registry.terraform.io/providers/jetstack/tlspc/0.5.0/docs/resources/firefly_config) | resource |
+| [tlspc_firefly_policy.policy](https://registry.terraform.io/providers/jetstack/tlspc/0.5.0/docs/resources/firefly_policy) | resource |
+| [tlspc_firefly_subca.subca](https://registry.terraform.io/providers/jetstack/tlspc/0.5.0/docs/resources/firefly_subca) | resource |
+| [tlspc_service_account.firefly](https://registry.terraform.io/providers/jetstack/tlspc/0.5.0/docs/resources/service_account) | resource |
+| [tlspc_team.firefly_team](https://registry.terraform.io/providers/jetstack/tlspc/0.5.0/docs/resources/team) | resource |
+| [tlspc_ca_product.built_in_ca](https://registry.terraform.io/providers/jetstack/tlspc/0.5.0/docs/data-sources/ca_product) | data source |
+| [tlspc_user.firefly_team_owner](https://registry.terraform.io/providers/jetstack/tlspc/0.5.0/docs/data-sources/user) | data source |
 
 ## Inputs
 
