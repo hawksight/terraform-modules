@@ -20,21 +20,22 @@ A Terraform native installation of the Venafi TLS Protect for Kubernetes (TLSPK)
 First setup your `inputs.tfvars` using the [inputs.tfvars.tpl](./inputs.tfvars.tpl) as an example.
 
 ```sh
-export VCP_TENANT_NAME="demonstratorsaurus" VCP_REGION="eu"
-cp inputs.tfvars.tpl $VCP_TENANT_NAME-$VCP_REGION-inputs.tfvars
+export VCP_TENANT_NAME="demons-eu"
+cp inputs.tfvars.tpl $VCP_TENANT_NAME-inputs.tfvars
 ```
 
-Now edit your specific inputs file: `$VCP_TENANT_NAME-$VCP_REGION-inputs.tfvars`.
+Now edit your specific inputs file: `$VCP_TENANT_NAME-inputs.tfvars`.
 Only once you are happy that all the inputs now use your project & tenant specific values, continue.
 Two files have been provided as examples for EU and US region tenants of Venafi Control Plane:
 
 - US - [jetstack-us-inputs.tfvars](./jetstack-us-inputs.tfvars)
-- EU - [demonstratorsaurus-eu-inputs](./demonstratorsaurus-eu-inputs.tfvars)
+- EU - [demons-eu-inputs](./demons-eu-inputs.tfvars)
 
 Create a symlink from your values to `inputs.tfvars` as shown:
 
 ```sh
-ln -s $VCP_TENANT_NAME-$VCP_REGION-inputs.tfvars inputs.tfvars
+if [ -h "inputs.tfvars" ] ; then rm ./inputs.tfvars ; else echo "No inputs.tfvars symlink, creating ..."; fi
+ln -s $VCP_TENANT_NAME-inputs.tfvars inputs.tfvars
 ```
 
 Export your Venafi TLS Protect Cloud (TLSPC) API key in order to use the terraform:
