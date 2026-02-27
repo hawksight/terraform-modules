@@ -64,22 +64,22 @@ variable "vcp_endpoints" {
       "api" : "api.venafi.eu"
     },
     "uk" : {
-      "private_registry" : "private-registry.venafi.uk",
+      "private_registry" : "private-registry.venafi.eu",
       "public_registry" : "registry.venafi.cloud",
       "api" : "api.uk.venafi.cloud"
     },
     "ca" : {
-      "private_registry" : "private-registry.venafi.ca",
+      "private_registry" : "private-registry.venafi.cloud",
       "public_registry" : "registry.venafi.cloud",
       "api" : "api.ca.venafi.cloud"
     },
-    "si" : {
-      "private_registry" : "private-registry.venafi.si",
+    "sg" : {
+      "private_registry" : "private-registry.venafi.cloud",
       "public_registry" : "registry.venafi.cloud",
-      "api" : "api.si.venafi.cloud"
+      "api" : "api.sg.venafi.cloud"
     },
     "au" : {
-      "private_registry" : "private-registry.venafi.au",
+      "private_registry" : "private-registry.venafi.cloud",
       "public_registry" : "registry.venafi.cloud",
       "api" : "api.au.venafi.cloud"
     }
