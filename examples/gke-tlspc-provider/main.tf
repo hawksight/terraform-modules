@@ -34,6 +34,7 @@ module "tlspk" {
   vcp_team_owner_email = var.vcp_team_owner_email
   vcp_api_key          = var.vcp_api_key
   vcp_tenant_id        = var.vcp_tenant_id
+  vcp_region           = var.vcp_region
   vcp_issuing_policies = var.vcp_issuing_policies
 
   cluster_issuer_uri = local.issuer_uri
@@ -74,13 +75,13 @@ resource "helm_release" "tlspk-config" {
   # Of the two (2), one escapes the other resulting in one (1) in the final configuration.
   # --- Example ---- #
   # Venafi Connection Name:       tlspc-cluster-issuer
-  # Zone:                         tiger-response-tlspk\tlspk
+  # Zone:                         tiger-response-tlspk\tlspk or tiger-response-tlspk\Default
   # --- End Example ---- #
   set {
     name  = "issuer.zone"
     # VCP Application \ Issuing Policy
     # TODO: change tlspk to be a variable
-    value = "${var.vcp_team_name}-tlspk\\\\tlspk"
+    value = "${var.vcp_team_name}-tlspk\\\\Default"
   }
   set {
     name  = "connection.jwt.audiences[0]"
