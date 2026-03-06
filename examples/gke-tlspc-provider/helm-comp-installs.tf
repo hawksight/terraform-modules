@@ -1,16 +1,18 @@
 resource "helm_release" "venafi-connection" {
   name       = "venafi-connection"
   namespace  = var.vcp_namespace
-  repository = "oci://registry.venafi.cloud/charts/"
+  repository = local.oci_chart_url
   chart      = "venafi-connection"
-  version    = "v0.2.0"
-  # depends_on = [module.venafi-service-account]
+  version    = "v0.4.0"
+  depends_on = [module.tlspk]
+
+  timeout = 200
 }
 
 resource "helm_release" "approver-policy-enterprise" {
   name       = "approver-policy-enterprise"
   namespace  = var.vcp_namespace
-  repository = "oci://registry.venafi.cloud/charts/"
+  repository = local.oci_chart_url
   chart      = "approver-policy-enterprise"
   version    = "v0.20.0"
 
@@ -26,6 +28,7 @@ resource "helm_release" "approver-policy-enterprise" {
       "clusterissuers.cert-manager.io/*",
       "venaficlusterissuers.jetstack.io/*",
       "venafiissuers.jetstack.io/*",
+      "firefly.venafi.com/*",
     ]
   }
 
@@ -36,10 +39,12 @@ resource "helm_release" "approver-policy-enterprise" {
   }
   set {
     name  = "cert-manager-approver-policy.image.repository"
-    value = "${local.registry_url}/venafi-approver-policy/approver-policy-enterprise"
+    value = "${local.private_registry_url}/venafi-approver-policy/approver-policy-enterprise"
   }
 
   depends_on = [helm_release.venafi-connection, helm_release.cert-manager]
+
+  timeout = 200
 }
 
 # resource "helm_release" "trust-manager" {
@@ -70,11 +75,11 @@ resource "helm_release" "approver-policy-enterprise" {
 #   }
 #   set {
 #     name  = "defaultPackageImage.repository"
-#     value = "${local.registry_url}/trust-manager/cert-manager-package-debian"
+#     value = "${local.private_registry_url}/trust-manager/cert-manager-package-debian"
 #   }
 #   set {
 #     name  = "image.repository"
-#     value = "${local.registry_url}/trust-manager/trust-manager"
+#     value = "${local.private_registry_url}/trust-manager/trust-manager"
 #   }
 #   depends_on = [helm_release.approver-policy-enterprise, helm_release.cert-manager]
 # }
@@ -82,9 +87,9 @@ resource "helm_release" "approver-policy-enterprise" {
 resource "helm_release" "cert-manager" {
   name       = "cert-manager"
   namespace  = var.vcp_namespace
-  repository = "oci://registry.venafi.cloud/charts/"
+  repository = local.oci_chart_url
   chart      = "cert-manager"
-  version    = "v1.17.1"
+  version    = "v1.18.0-beta.0"
 
   # venctl values
   set {
@@ -107,30 +112,32 @@ resource "helm_release" "cert-manager" {
   }
   set {
     name  = "acmesolver.image.repository"
-    value = "${local.registry_url}/cert-manager/cert-manager-acmesolver"
+    value = "${local.private_registry_url}/cert-manager/cert-manager-acmesolver"
   }
   set {
     name  = "cainjector.image.repository"
-    value = "${local.registry_url}/cert-manager/cert-manager-cainjector"
+    value = "${local.private_registry_url}/cert-manager/cert-manager-cainjector"
   }
   set {
     name  = "image.repository"
-    value = "${local.registry_url}/cert-manager/cert-manager-controller"
+    value = "${local.private_registry_url}/cert-manager/cert-manager-controller"
   }
   set {
     name  = "startupapicheck.image.repository"
-    value = "${local.registry_url}/cert-manager/cert-manager-startupapicheck"
+    value = "${local.private_registry_url}/cert-manager/cert-manager-startupapicheck"
   }
   set {
     name  = "webhook.image.repository"
-    value = "${local.registry_url}/cert-manager/cert-manager-webhook"
+    value = "${local.private_registry_url}/cert-manager/cert-manager-webhook"
   }
+
+  timeout = 200
 }
 
 resource "helm_release" "venafi-enhanced-issuer" {
   name       = "venafi-enhanced-issuer"
   namespace  = var.vcp_namespace
-  repository = "oci://registry.venafi.cloud/charts/"
+  repository = local.oci_chart_url
   chart      = "venafi-enhanced-issuer"
   version    = "v0.15.0"
 
@@ -144,7 +151,7 @@ resource "helm_release" "venafi-enhanced-issuer" {
   }
   set {
     name  = "venafiEnhancedIssuer.manager.image.repository"
-    value = "${local.registry_url}/venafi-issuer/venafi-enhanced-issuer"
+    value = "${local.private_registry_url}/venafi-issuer/venafi-enhanced-issuer"
   }
   # TODO: Implement this option in chart
   # set {
@@ -152,14 +159,16 @@ resource "helm_release" "venafi-enhanced-issuer" {
   #   value = "--zap-log-level=debug"
   # }
   depends_on = [helm_release.venafi-connection, helm_release.cert-manager]
+
+  timeout = 200
 }
 
 resource "helm_release" "venafi-agent" {
   name       = "venafi-kubernetes-agent"
   namespace  = var.vcp_namespace
-  repository = "oci://registry.venafi.cloud/charts/"
+  repository = local.oci_chart_url
   chart      = "venafi-kubernetes-agent"
-  version    = "1.4.0"
+  version    = "v1.5.0"
   set {
     name  = "config.clusterName"
     value = var.vcp_cluster_name
@@ -179,7 +188,7 @@ resource "helm_release" "venafi-agent" {
   }
   set {
     name  = "image.repository"
-    value = "${local.registry_url}/venafi-agent/venafi-agent"
+    value = "${local.private_registry_url}/venafi-agent/venafi-agent"
   }
   set {
     name  = "imagePullSecrets[0].name"
@@ -190,4 +199,6 @@ resource "helm_release" "venafi-agent" {
     value = true
   }
   dependency_update = true
+
+  timeout = 200
 }

@@ -2,3 +2,7 @@ venafi-config
 plan
 *.tfstate
 *.tfstate.backup
+*-inputs.tfvars
+tls.crt
+tls.key
+inputs.tfvars

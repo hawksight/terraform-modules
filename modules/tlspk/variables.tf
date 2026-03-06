@@ -1,3 +1,8 @@
+# variable tlspk_instance {
+#   type        = string
+#   default     = ""
+#   description = "Name for the TLSPK instance, eg. the helm release. Defaults to generated name base on the cluster name"
+# }
 
 variable "vcp_cluster_name" {
   type        = string
@@ -8,7 +13,7 @@ variable "vcp_cluster_name" {
 variable "vcp_api_key" {
   type        = string
   sensitive   = true
-  description = "Venafi API Key"
+  description = "Venafi Cloud API Key"
 }
 
 variable "vcp_tenant_id" {
@@ -32,6 +37,13 @@ variable "vcp_team_name" {
   type        = string
   description = "Input a VCP identity you would like to own the VCP Team"
 }
+
+# TODO: use this later to disable team creation if assigning to an existing team.
+# variable vcp_create_team {
+#   type        = bool
+#   default     = true
+#   description = "Option to disable the team creation"
+# }
 
 variable "vcp_region" {
   type        = string
@@ -100,37 +112,6 @@ variable "vcp_issuing_policies" {
   description = "A map of CA aliases and associate IDs"
 }
 
-## GKE Specifics
-variable "gcp_project" {
-  type        = string
-  default     = "jetstack-peter-fiddes"
-  description = "GCP Account Name"
-}
-
-variable "gcp_region" {
-  type        = string
-  default     = "europe-west1"
-  description = "Region to use for GCP resources"
-}
-
-variable "gcp_zone" {
-  type        = string
-  default     = "europe-west1-c"
-  description = "Zone for GCP resources"
-}
-
-variable "gcp_cluster_name" {
-  type        = string
-  default     = "example-autopilot-cluster"
-  description = "GKE cluster name in GCP"
-}
-
-# variable "gcp_enable_autopilot" {
-#   type        = bool
-#   default     = false
-#   description = "Option to enable autopilot. Do not enable if using CyberArk Firefly as it does not run in autopilot clusters currently."
-# }
-
 # Helm specific
 # NOTE this is not a public chart at the moment.
 # TODO: make public
@@ -138,4 +119,15 @@ variable "helm_chart_venafi_config" {
   type        = string
   default     = "/Users/peter.fiddes/projects/jetstack/venafi-config"
   description = "Local path to the configuration chart"
+}
+
+# Cluster specific settings needed for JWT authentication
+variable cluster_issuer_uri {
+  type        = string
+  description = "The cluster's issuer URI for token issuance"
+}
+
+variable cluster_jwks_uri {
+  type        = string
+  description = "The JWKS URI for the cluster to used to validate tokens"
 }

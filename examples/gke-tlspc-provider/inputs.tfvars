@@ -1,1 +1,1 @@
-jetstack-us-inputs.tfvars
+demons-sg-inputs.tfvars
