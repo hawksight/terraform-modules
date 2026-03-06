@@ -1,1 +1,1 @@
-demons-au-inputs.tfvars
+demons-sg-inputs.tfvars

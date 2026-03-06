@@ -75,7 +75,7 @@ resource "helm_release" "tlspk-config" {
   # Of the two (2), one escapes the other resulting in one (1) in the final configuration.
   # --- Example ---- #
   # Venafi Connection Name:       tlspc-cluster-issuer
-  # Zone:                         tiger-response-tlspk\tlspk or tiger-response-tlspk\Default
+  # Zone:                         tiger-response-tlspk\tlspk or tiger-response-tlspk\\Default
   # --- End Example ---- #
   set {
     name  = "issuer.zone"
