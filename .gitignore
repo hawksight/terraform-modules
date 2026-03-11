@@ -4,3 +4,4 @@
 **/*.tfstate.backup
 **/.terraform
 .vscode
+**/out.tfplan
