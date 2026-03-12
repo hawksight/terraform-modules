@@ -12,11 +12,11 @@ globals "terraform" "providers" "google" {
 }
 
 globals "terraform" "providers" "kubernetes" {
-  version = "~> 2.38.0"
+  version = "~> 2.38"
 }
 
 globals "terraform" "providers" "helm" {
-  version = "~> 2.17.0"
+  version = "~> 2.17"
 }
 
 globals "terraform" "providers" "tls" {
@@ -24,7 +24,7 @@ globals "terraform" "providers" "tls" {
 }
 
 globals "terraform" "providers" "tlspc" {
-  version = "~> 0.5.0"
+  version = "~> 0.5"
 }
 
 import {
