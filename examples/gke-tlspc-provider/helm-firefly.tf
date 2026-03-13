@@ -15,9 +15,7 @@ resource "helm_release" "firefly" {
   depends_on = [
     module.tlspk,
     module.firefly,
-    helm_release.approver-policy-enterprise,
-    helm_release.cert-manager,
-    helm_release.venafi-connection,
+    module.cluster_addons_pki_tlspk
   ]
 
   # upgrade_install = true

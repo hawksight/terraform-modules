@@ -1,20 +1,21 @@
 resource "helm_release" "venafi-connection" {
+  # count = contains(var.components, "venafi-connection") ? 1 : 0
   name       = "venafi-connection"
   namespace  = var.vcp_namespace
-  repository = local.oci_chart_url
+  repository = var.vcp_oci_url
   chart      = "venafi-connection"
-  version    = "v0.4.0"
-  depends_on = [module.tlspk]
+  version    = var.chart_versions["venafi-connection"]
 
   timeout = 200
 }
 
 resource "helm_release" "approver-policy-enterprise" {
+  # count = contains(var.components, "approver-policy-enterprise") ? 1 : 0
   name       = "approver-policy-enterprise"
   namespace  = var.vcp_namespace
-  repository = local.oci_chart_url
+  repository = var.vcp_oci_url
   chart      = "approver-policy-enterprise"
-  version    = "v0.20.0"
+  version    = var.chart_versions["approver-policy-enterprise"]
 
   # venctl values
   set {
@@ -39,7 +40,7 @@ resource "helm_release" "approver-policy-enterprise" {
   }
   set {
     name  = "cert-manager-approver-policy.image.repository"
-    value = "${local.private_registry_url}/venafi-approver-policy/approver-policy-enterprise"
+    value = "${var.vcp_private_registry}/venafi-approver-policy/approver-policy-enterprise"
   }
 
   depends_on = [helm_release.venafi-connection, helm_release.cert-manager]
@@ -47,6 +48,7 @@ resource "helm_release" "approver-policy-enterprise" {
   timeout = 200
 }
 
+# TODO: Add trust-manager back into the mix
 # resource "helm_release" "trust-manager" {
 #   name       = "trust-manager"
 #   namespace  = var.vcp_namespace
@@ -75,21 +77,22 @@ resource "helm_release" "approver-policy-enterprise" {
 #   }
 #   set {
 #     name  = "defaultPackageImage.repository"
-#     value = "${local.private_registry_url}/trust-manager/cert-manager-package-debian"
+#     value = "${var.vcp_private_registry}/trust-manager/cert-manager-package-debian"
 #   }
 #   set {
 #     name  = "image.repository"
-#     value = "${local.private_registry_url}/trust-manager/trust-manager"
+#     value = "${var.vcp_private_registry}/trust-manager/trust-manager"
 #   }
 #   depends_on = [helm_release.approver-policy-enterprise, helm_release.cert-manager]
 # }
 
 resource "helm_release" "cert-manager" {
+  # count = contains(var.components, "cert-manager") ? 1 : 0
   name       = "cert-manager"
   namespace  = var.vcp_namespace
-  repository = local.oci_chart_url
+  repository = var.vcp_oci_url
   chart      = "cert-manager"
-  version    = "v1.18.0-beta.0"
+  version    = var.chart_versions["cert-manager"]
 
   # venctl values
   set {
@@ -112,34 +115,35 @@ resource "helm_release" "cert-manager" {
   }
   set {
     name  = "acmesolver.image.repository"
-    value = "${local.private_registry_url}/cert-manager/cert-manager-acmesolver"
+    value = "${var.vcp_private_registry}/cert-manager/cert-manager-acmesolver"
   }
   set {
     name  = "cainjector.image.repository"
-    value = "${local.private_registry_url}/cert-manager/cert-manager-cainjector"
+    value = "${var.vcp_private_registry}/cert-manager/cert-manager-cainjector"
   }
   set {
     name  = "image.repository"
-    value = "${local.private_registry_url}/cert-manager/cert-manager-controller"
+    value = "${var.vcp_private_registry}/cert-manager/cert-manager-controller"
   }
   set {
     name  = "startupapicheck.image.repository"
-    value = "${local.private_registry_url}/cert-manager/cert-manager-startupapicheck"
+    value = "${var.vcp_private_registry}/cert-manager/cert-manager-startupapicheck"
   }
   set {
     name  = "webhook.image.repository"
-    value = "${local.private_registry_url}/cert-manager/cert-manager-webhook"
+    value = "${var.vcp_private_registry}/cert-manager/cert-manager-webhook"
   }
 
   timeout = 200
 }
 
 resource "helm_release" "venafi-enhanced-issuer" {
+  # count = contains(var.components, "venafi-enhanced-issuer") ? 1 : 0
   name       = "venafi-enhanced-issuer"
   namespace  = var.vcp_namespace
-  repository = local.oci_chart_url
+  repository = var.vcp_oci_url
   chart      = "venafi-enhanced-issuer"
-  version    = "v0.15.0"
+  version    = var.chart_versions["venafi-enhanced-issuer"]
 
   set {
     name  = "global.imagePullSecrets[0].name"
@@ -151,7 +155,7 @@ resource "helm_release" "venafi-enhanced-issuer" {
   }
   set {
     name  = "venafiEnhancedIssuer.manager.image.repository"
-    value = "${local.private_registry_url}/venafi-issuer/venafi-enhanced-issuer"
+    value = "${var.vcp_private_registry}/venafi-issuer/venafi-enhanced-issuer"
   }
   # TODO: Implement this option in chart
   # set {
@@ -164,11 +168,12 @@ resource "helm_release" "venafi-enhanced-issuer" {
 }
 
 resource "helm_release" "venafi-agent" {
+  # count = contains(var.components, "venafi-kubernetes-agent") ? 1 : 0
   name       = "venafi-kubernetes-agent"
   namespace  = var.vcp_namespace
-  repository = local.oci_chart_url
+  repository = var.vcp_oci_url
   chart      = "venafi-kubernetes-agent"
-  version    = "v1.5.0"
+  version    = var.chart_versions["venafi-kubernetes-agent"]
   set {
     name  = "config.clusterName"
     value = var.vcp_cluster_name
@@ -184,11 +189,11 @@ resource "helm_release" "venafi-agent" {
   }
   set {
     name  = "config.server"
-    value = local.api_url
+    value = var.vcp_api_url
   }
   set {
     name  = "image.repository"
-    value = "${local.private_registry_url}/venafi-agent/venafi-agent"
+    value = "${var.vcp_private_registry}/venafi-agent/venafi-agent"
   }
   set {
     name  = "imagePullSecrets[0].name"

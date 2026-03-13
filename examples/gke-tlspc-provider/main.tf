@@ -45,6 +45,21 @@ module "tlspk" {
 # --- 3) Use those TLSPC resources by configuring all in cluster components
 # ------------------------------------------------------------------------- #
 
+module cluster_addons_pki_tlspk {
+  source = "../../modules/cluster-addons-pki-tlspk"
+
+  vcp_namespace        = var.vcp_namespace
+  vcp_cluster_name     = var.vcp_cluster_name
+  vcp_api_url         = local.api_url
+  vcp_private_registry = local.private_registry_url
+  vcp_public_registry  = local.public_registry_url
+  vcp_oci_url         = local.oci_chart_url
+  
+  depends_on = [module.tlspk, module.gke]
+}
+
+data "tlspc_tenant" "tenant" {}
+
 # Configure VenafiClusterIssuer + VenafiConnection for issuance & discovery (agent).
 # NOTE: See all component installation helm in helm-component-installs.tf.
 # NOTE: This chart "venafi-config" is not currently public
@@ -60,7 +75,7 @@ resource "helm_release" "tlspk-config" {
   }
   set {
     name  = "venafi.tenantId"
-    value = var.vcp_tenant_id
+    value = data.tlspc_tenant.tenant.id
   }
   set {
     name  = "venafi.controlPlane"
@@ -115,11 +130,9 @@ resource "helm_release" "tlspk-config" {
     ]
   }
   depends_on = [
-    helm_release.venafi-enhanced-issuer,
-    helm_release.approver-policy-enterprise,
-    helm_release.venafi-agent,
     module.tlspk,
-    module.gke
+    module.gke,
+    module.cluster_addons_pki_tlspk
   ]
 }
 
