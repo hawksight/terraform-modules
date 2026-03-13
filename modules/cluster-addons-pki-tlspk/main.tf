@@ -20,7 +20,7 @@ resource "helm_release" "approver-policy-enterprise" {
   # venctl values
   set {
     name  = "cert-manager-approver-policy.imagePullSecrets[0].name"
-    value = "venafi-image-pull-secret"
+    value = var.vcp_image_pull_secret
   }
   set_list {
     name = "cert-manager-approver-policy.app.approveSignerNames"
@@ -59,7 +59,7 @@ resource "helm_release" "approver-policy-enterprise" {
 #   # venctl values
 #   set {
 #     name  = "imagePullSecrets[0].name"
-#     value = "venafi-image-pull-secret"
+#     value = var.vcp_image_pull_secret
 #   }
 
 #   # venctl set
@@ -97,7 +97,7 @@ resource "helm_release" "cert-manager" {
   # venctl values
   set {
     name  = "global.imagePullSecrets[0].name"
-    value = "venafi-image-pull-secret"
+    value = var.vcp_image_pull_secret
   }
   set {
     name  = "disableAutoApproval"
@@ -147,7 +147,7 @@ resource "helm_release" "venafi-enhanced-issuer" {
 
   set {
     name  = "global.imagePullSecrets[0].name"
-    value = "venafi-image-pull-secret"
+    value = var.vcp_image_pull_secret
   }
   set {
     name  = "venafiConnection.include"
@@ -197,7 +197,7 @@ resource "helm_release" "venafi-agent" {
   }
   set {
     name  = "imagePullSecrets[0].name"
-    value = "venafi-image-pull-secret"
+    value = var.vcp_image_pull_secret
   }
   set {
     name  = "podDisruptionBudget.enabled"
