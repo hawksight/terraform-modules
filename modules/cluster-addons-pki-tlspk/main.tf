@@ -1,3 +1,10 @@
+resource "kubernetes_namespace" "tlspk" {
+  count = var.create_namespace ? 1 : 0
+  metadata {
+    name = var.vcp_namespace
+  }
+}
+
 resource "helm_release" "venafi-connection" {
   # count = contains(var.components, "venafi-connection") ? 1 : 0
   name       = "venafi-connection"
@@ -135,6 +142,8 @@ resource "helm_release" "cert-manager" {
   }
 
   timeout = 200
+  # Doing this ensures cert-manager API is operational before continuing.
+  wait_for_jobs = true
 }
 
 resource "helm_release" "venafi-enhanced-issuer" {

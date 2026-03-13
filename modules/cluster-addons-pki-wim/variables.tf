@@ -15,6 +15,11 @@ variable "vcp_cluster_name" {
   description = "Name of the cluster in Venafi Control Plane"
 }
 
+variable vcp_client_id {
+  type        = string
+  description = "Service account ID from the Venafi Control Plane"
+}
+
 variable "vcp_api_url" {
   type        = string
   default     = "api.venafi.cloud"
@@ -33,28 +38,15 @@ variable vcp_public_registry {
   description = "Public registry URL for helm charts and public container images"
 }
 
-variable vcp_oci_url {
-  type        = string
-  default     = "oci://registry.venafi.cloud"
-  description = "OCI chart URL for helm charts"
+variable chart_version {
+  type = string
+  default = "v1.7.0"
+  description = "Chart version for firefly helm release"
 }
 
-variable chart_versions {
-  type = map(string)
-  default = {
-    "cert-manager" : "v1.19.4",
-    "venafi-connection" : "v0.4.0",
-    "venafi-enhanced-issuer" : "v0.15.0",
-    "venafi-kubernetes-agent" : "v1.5.0",
-    "approver-policy-enterprise" : "v0.20.0"
-  }
-  description = "description"
-}
-
-variable vcp_image_pull_secret {
+variable vcp_auth_secret {
   type        = string
-  default     = "venafi-image-pull-secret"
-  description = "Name of the kubernetes secret with the docker credential for pulling images"
+  description = "Name of the kubernetes secret with VCP authentication credential"
 }
 
 # # TODO: reconsider this variable. May affect values passed in too. Stick with opinionated install for now.

@@ -1,13 +1,13 @@
 # ------------------------------------------------------------------------- #
 # --- 1) Create cluster environment
 # ------------------------------------------------------------------------- #
-module gke {
+module "gke" {
   source = "../../modules/gke"
 
-  gcp_project = var.gcp_project
-  gcp_region  = var.gcp_region
-  gcp_zone    = var.gcp_zone
-  gcp_cluster_name =  var.gcp_cluster_name
+  gcp_project      = var.gcp_project
+  gcp_region       = var.gcp_region
+  gcp_zone         = var.gcp_zone
+  gcp_cluster_name = var.gcp_cluster_name
 }
 
 # Lookup here to use details for authentication
@@ -45,16 +45,16 @@ module "tlspk" {
 # --- 3) Use those TLSPC resources by configuring all in cluster components
 # ------------------------------------------------------------------------- #
 
-module cluster_addons_pki_tlspk {
+module "cluster_addons_pki_tlspk" {
   source = "../../modules/cluster-addons-pki-tlspk"
 
   vcp_namespace        = var.vcp_namespace
   vcp_cluster_name     = var.vcp_cluster_name
-  vcp_api_url         = local.api_url
+  vcp_api_url          = local.api_url
   vcp_private_registry = local.private_registry_url
   vcp_public_registry  = local.public_registry_url
-  vcp_oci_url         = local.oci_chart_url
-  
+  vcp_oci_url          = local.oci_chart_url
+
   depends_on = [module.tlspk, module.gke]
 }
 
@@ -93,7 +93,7 @@ resource "helm_release" "tlspk-config" {
   # Zone:                         tiger-response-tlspk\tlspk or tiger-response-tlspk\\Default
   # --- End Example ---- #
   set {
-    name  = "issuer.zone"
+    name = "issuer.zone"
     # VCP Application \ Issuing Policy
     # TODO: change tlspk to be a variable
     value = "${var.vcp_team_name}-tlspk\\\\Default"
@@ -140,6 +140,7 @@ resource "helm_release" "tlspk-config" {
 # --- 4) Configure FireFly resources
 # ------------------------------------------------------------------------- #
 
+# SaaS resources
 module "firefly" {
   source = "../../modules/firefly"
 
@@ -148,4 +149,18 @@ module "firefly" {
   vcp_team_owner_email = var.vcp_team_owner_email
 
   depends_on = [module.tlspk, module.gke]
+}
+
+# Cluster resources
+module "cluster_addons_pki_wim" {
+  source = "../../modules/cluster-addons-pki-wim"
+
+  vcp_namespace        = var.vcp_namespace
+  vcp_cluster_name     = var.vcp_cluster_name
+  vcp_api_url          = local.api_url
+  vcp_public_registry  = local.public_registry_url
+  vcp_auth_secret      = module.firefly.firefly_auth_secret
+  vcp_client_id        = module.firefly.firefly_client_id
+
+  depends_on = [module.firefly]
 }

@@ -19,9 +19,7 @@ module cluster_addons_pki_tlspk {
 
   depends_on = [module.tlspk]
 }
-
 ```
-
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
