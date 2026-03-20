@@ -58,7 +58,7 @@ module "cluster_addons_pki_tlspk" {
   depends_on = [module.tlspk, module.gke]
 }
 
-data "tlspc_tenant" "tenant" {}
+# data "tlspc_tenant" "tenant" {}
 
 # Configure VenafiClusterIssuer + VenafiConnection for issuance & discovery (agent).
 # NOTE: See all component installation helm in helm-component-installs.tf.
@@ -75,7 +75,7 @@ resource "helm_release" "tlspk-config" {
   }
   set {
     name  = "venafi.tenantId"
-    value = data.tlspc_tenant.tenant.id
+    value = var.vcp_tenant_id
   }
   set {
     name  = "venafi.controlPlane"
@@ -129,11 +129,33 @@ resource "helm_release" "tlspk-config" {
       "tlspc-cluster-issuer.example.test"
     ]
   }
+
+  # Firefly RBAC & CRP
+  set {
+    name  = "firefly.certificateRequestPolicy"
+    value = true
+  }
+  set {
+    name  = "firefly.team"
+    value = var.vcp_team_name
+  }
+  set {
+    name  = "firefly.name"
+    value = "firefly"
+  }
+  set_list {
+    name = "firefly.certificate.dnsNames"
+    value = [
+      "${var.vcp_team_name}-firefly.example.test"
+    ]
+  }
   depends_on = [
     module.tlspk,
     module.gke,
     module.cluster_addons_pki_tlspk
   ]
+  # Set this when you need to force update resources
+  # force_update = true
 }
 
 # ------------------------------------------------------------------------- #
@@ -148,7 +170,7 @@ module "firefly" {
   vcp_team_name        = var.vcp_team_name
   vcp_team_owner_email = var.vcp_team_owner_email
 
-  depends_on = [module.tlspk, module.gke]
+  depends_on = [module.tlspk, module.gke, module.cluster_addons_pki_tlspk]
 }
 
 # Cluster resources
@@ -164,3 +186,22 @@ module "cluster_addons_pki_wim" {
 
   depends_on = [module.firefly]
 }
+
+# locals {
+#   crp_templ = templatefile("${path.module}/yaml/crp-firefly.yaml", {
+#     VCP_NAMESPACE = var.vcp_namespace,
+#     VCP_TEAM_NAME = var.vcp_team_name,
+#     VCP_FIREFLY_NAME = "firefly"
+#   })
+#   crps  = provider::kubernetes::manifest_decode_mutlti(local.crp_templ)
+# }
+
+# output templ_output {
+#   value       = local.crp_templ
+#   description = "Manifest Templated Output"
+#   depends_on  = [local.crp_templ]
+# }
+
+# resource "kubernetes_manifest" "ff-crp" {
+#   manifest = local.crps
+# }

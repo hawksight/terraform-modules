@@ -49,15 +49,13 @@ variable vcp_auth_secret {
   description = "Name of the kubernetes secret with VCP authentication credential"
 }
 
-# # TODO: reconsider this variable. May affect values passed in too. Stick with opinionated install for now.
-# variable components {
-#   type        = list(string)
-#   default     = [
-#     "cert-manager",
-#     "venafi-connection",
-#     "venafi-enhanced-issuer",
-#     "venafi-kubernetes-agent",
-#     "approver-policy-enterprise",
-#   ]
-#   description = "description"
+# variable "vcp_team_name" {
+#   type        = string
+#   description = "Provide a name to the team owning this firefly installation"
 # }
+
+variable "vcp_firefly_name" {
+  type        = string
+  default     = "firefly"
+  description = "String name for the firefly installation"
+}

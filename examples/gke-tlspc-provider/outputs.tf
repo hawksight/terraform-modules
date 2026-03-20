@@ -22,6 +22,11 @@ output "vcp_public_registry" {
 
 output "vcp_api_url" {
   value       = module.tlspk.vcp_api_url
-  sensitive   = false
   description = "The computed value for the SaaS API URL"
+}
+
+output "venafi_config_values" {
+  value       = resource.helm_release.tlspk-config.values
+  description = "Values used to configure the release."
+  depends_on  = [resource.helm_release.tlspk-config]
 }

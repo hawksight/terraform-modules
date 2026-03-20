@@ -48,7 +48,7 @@ resource "kubernetes_secret" "firefly-credentials" {
 }
 
 resource "tlspc_firefly_policy" "policy" {
-  name                = "Firefly Policy - ${var.vcp_team_name}/${var.vcp_firefly_name}"
+  name                = "${var.vcp_team_name}/${var.vcp_firefly_name}"
   extended_key_usages = ["ANY"]
   key_usages          = ["digitalSignature", "keyEncipherment"]
   validity_period     = "P30D"
@@ -139,7 +139,7 @@ data "tlspc_ca_product" "built_in_ca" {
 }
 
 resource "tlspc_firefly_subca" "subca" {
-  name                 = "Firefly Sub CA - ${var.vcp_team_name}/${var.vcp_firefly_name}"
+  name                 = "${var.vcp_team_name}/${var.vcp_firefly_name}"
   ca_type              = data.tlspc_ca_product.built_in_ca.type
   ca_account_id        = data.tlspc_ca_product.built_in_ca.account_id
   ca_product_option_id = data.tlspc_ca_product.built_in_ca.id
@@ -149,7 +149,7 @@ resource "tlspc_firefly_subca" "subca" {
 }
 
 resource "tlspc_firefly_config" "config" {
-  name             = "Firefly Config - ${var.vcp_team_name}/${var.vcp_firefly_name}"
+  name             = "${var.vcp_team_name}/${var.vcp_firefly_name}"
   subca_provider   = resource.tlspc_firefly_subca.subca.id
   service_accounts = [resource.tlspc_service_account.firefly.id]
   policies         = [resource.tlspc_firefly_policy.policy.id]
